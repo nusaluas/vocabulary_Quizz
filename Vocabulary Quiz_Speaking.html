@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Latihan Kosakata Suara - Yayasan Cahaya Anak Papua</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #1e3a8a 0%, #0369a1 50%, #0891b2 100%);
+            background-attachment: fixed;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .transition-all-smooth { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hidden { display: none; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .mic-active {
+            animation: pulse-red 2s infinite;
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+        }
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .content-area::-webkit-scrollbar { width: 4px; }
+        .content-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    </style>
+</head>
+<body class="flex items-center justify-center p-2 sm:p-4">
+
+    <div class="w-full max-w-2xl mx-auto relative h-full flex items-center justify-center">
+         <!-- Tombol Pengaturan Musik -->
+        <button onclick="showMusicSettings()" class="absolute top-2 right-2 text-cyan-200 hover:text-white transition-all-smooth z-20 bg-white/10 p-2 rounded-full border border-white/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+
+        <!-- Tampilan Latihan/Kuis -->
+        <div id="quiz-view" class="w-full">
+            <div class="glass-card p-4 sm:p-8 rounded-3xl shadow-2xl overflow-hidden">
+                <div class="content-area overflow-y-auto flex flex-col h-full">
+                    <!-- Header dengan Logo -->
+                    <div class="flex flex-col items-center mb-4 shrink-0">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full p-1.5 shadow-inner mb-2 flex items-center justify-center overflow-hidden border-2 border-cyan-400">
+                            <img src="https://smartcap.or.id/assets/logo.png" alt="Logo Yayasan Cahaya Anak Papua" class="max-w-full h-auto" onerror="this.src='https://i.ibb.co/C3Xg38h/logo-3-s.png'">
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-white text-center drop-shadow-md leading-tight">Latihan Kosakata Suara</h1>
+                        <p class="text-cyan-100 text-[10px] sm:text-xs mt-0.5 opacity-80 uppercase tracking-widest font-semibold">Yayasan Cahaya Anak Papua</p>
+                    </div>
+
+                    <div class="flex justify-center mb-4 shrink-0">
+                        <button id="import-csv-btn" class="bg-cyan-500 hover:bg-cyan-400 text-white font-bold py-1.5 px-5 rounded-full text-xs transition-all-smooth shadow-lg flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Impor CSV
+                        </button>
+                    </div>
+                    
+                    <input type="file" id="csv-file-input" class="hidden" accept=".csv">
+
+                    <div id="score-display" class="text-center text-cyan-50 text-xs sm:text-sm font-medium mb-4 bg-white/10 py-1.5 rounded-xl shrink-0"></div>
+                    
+                    <div id="quiz-container" class="text-center flex-grow flex flex-col justify-center">
+                        <!-- Prompt Awal -->
+                        <div id="initial-prompt" class="text-center p-4 sm:p-6 bg-white/5 rounded-2xl border border-white/10">
+                            <h2 class="text-xl font-semibold text-white mb-2">Siap Latihan Suara?</h2>
+                            <p class="text-cyan-100 text-sm opacity-90 leading-relaxed mb-4">Izin mikrofon hanya diperlukan satu kali. Ucapkan salah satu arti jika terdapat beberapa pilihan (contoh: a/an).</p>
+                            <p class="text-[10px] text-cyan-200/50 mb-4 uppercase tracking-widest">Klik "Impor CSV" lalu tekan tombol di bawah.</p>
+                            <button id="start-mic-init" class="hidden w-full bg-emerald-500 hover:bg-emerald-400 text-white font-black py-3 rounded-2xl shadow-xl uppercase text-sm transition-all-smooth">Buka Mikrofon & Mulai</button>
+                        </div>
+
+                        <!-- Tampilan Pertanyaan Suara -->
+                        <div id="voice-area" class="hidden flex flex-col items-center">
+                            <p id="question-info" class="text-cyan-100 text-sm mb-2 font-medium">Soal <span id="question-counter" class="text-white font-bold">1</span> / <span id="total-questions">10</span></p>
+                            <p id="question" class="text-2xl sm:text-4xl font-bold text-white mb-6 min-h-[60px] flex items-center justify-center drop-shadow-sm leading-tight text-center"></p>
+                            
+                            <!-- Indikator Mikrofon -->
+                            <div id="mic-status-container" class="relative mb-6">
+                                <div id="mic-pulse" class="w-20 h-20 bg-rose-500 rounded-full flex items-center justify-center transition-all-smooth mic-active shadow-[0_0_20px_rgba(239,68,68,0.4)]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+                                </div>
+                                <p id="mic-text" class="text-cyan-200 text-xs mt-3 uppercase font-bold tracking-widest">Mendengarkan...</p>
+                            </div>
+
+                            <p id="captured-text" class="text-white/60 italic text-sm mb-4 min-h-[20px]">Ucapkan terjemahannya...</p>
+                        </div>
+
+                        <div id="feedback" class="mt-2 font-bold text-xl sm:text-2xl min-h-[32px] drop-shadow-md"></div>
+                        
+                        <div class="flex justify-center mt-4">
+                            <button id="next-btn" class="hidden w-full sm:w-auto bg-cyan-400 hover:bg-cyan-300 text-blue-950 font-black py-3.5 px-10 rounded-2xl transition-all-smooth shadow-xl uppercase text-sm">
+                                Soal Berikutnya ➔
+                            </button>
+                            <button id="restart-btn" class="hidden w-full sm:w-auto bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black py-3.5 px-10 rounded-2xl transition-all-smooth shadow-xl uppercase text-sm">
+                                Mulai Ulang
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex flex-col items-center opacity-40 shrink-0">
+                        <p class="text-[8px] sm:text-[10px] text-white tracking-widest uppercase font-bold">✨ CAHAYA ANAK PAPUA ✨</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Musik -->
+        <div id="music-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+            <div class="bg-slate-900 w-full max-w-sm p-6 rounded-3xl shadow-2xl text-center fade-in border border-white/10 max-h-[90vh] overflow-y-auto">
+                <h3 class="text-xl font-bold text-white mb-4">Musik Latar</h3>
+                <button onclick="document.getElementById('audio-upload').click()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all-smooth mb-4 shadow-lg text-sm">Unggah Audio</button>
+                <input type="file" id="audio-upload" class="hidden" accept="audio/*" onchange="handleAudioUpload(event)" multiple>
+                <div id="playlist-container" class="text-left text-xs text-cyan-100 max-h-32 overflow-y-auto mb-4 p-2 bg-white/5 rounded-xl space-y-1.5 border border-white/5">
+                    <p class="text-white/30 italic p-1">Daftar putar kosong.</p>
+                </div>
+                <button id="delete-playlist-btn" onclick="showDeleteConfirm()" class="text-red-400 hover:text-red-300 text-[10px] font-semibold mb-4" disabled>Hapus Semua Lagu</button>
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <button id="play-btn" onclick="playMusic()" class="btn-music bg-emerald-500 hover:bg-emerald-400 text-white p-3 rounded-full shadow-lg" disabled><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+                    <button id="stop-btn" onclick="stopMusic()" class="btn-music bg-rose-500 hover:bg-rose-400 text-white p-3 rounded-full shadow-lg" disabled><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg></button>
+                </div>
+                <div class="bg-white/5 p-3 rounded-2xl mb-4">
+                    <div class="flex items-center gap-2 text-[9px] font-mono text-cyan-200 mb-1.5">
+                        <span id="current-time">00:00</span>
+                        <input type="range" id="seek-slider" value="0" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+                        <span id="total-duration">00:00</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-300"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+                    </div>
+                </div>
+                <button onclick="hideMusicSettings()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl border border-white/5 text-sm">Tutup</button>
+            </div>
+        </div>
+        
+        <!-- Modal Konfirmasi Hapus Playlist -->
+        <div id="confirm-delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+            <div class="bg-slate-900 w-full max-w-xs p-6 rounded-3xl shadow-2xl text-center fade-in border border-white/10">
+                <h3 class="text-lg font-bold text-white mb-2">Hapus Playlist?</h3>
+                <p class="text-cyan-100/60 text-xs mb-6">Semua lagu akan dihapus.</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="hideDeleteConfirm()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl text-xs">Batal</button>
+                    <button onclick="deletePlaylist()" class="bg-red-500 hover:bg-red-400 text-white font-bold py-2.5 rounded-xl text-xs">Hapus</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Impor Sukses -->
+        <div id="import-success-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+            <div class="bg-white w-full max-w-xs p-6 rounded-3xl shadow-2xl text-center fade-in">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-1">Berhasil!</h3>
+                <p class="text-slate-500 text-xs">Kosakata telah dimuat.</p>
+            </div>
+        </div>
+    </div>
+    
+    <audio id="audio-player" class="hidden"></audio>
+
+    <script>
+        // --- DATA KOSAKATA ---
+        let allVocab = [];
+
+        // --- ELEMEN DOM ---
+        const musicModal = document.getElementById('music-modal');
+        const confirmDeleteModal = document.getElementById('confirm-delete-modal');
+        const importSuccessModal = document.getElementById('import-success-modal');
+        const scoreDisplay = document.getElementById('score-display');
+        const voiceArea = document.getElementById('voice-area');
+        const questionEl = document.getElementById('question');
+        const micPulse = document.getElementById('mic-pulse');
+        const micText = document.getElementById('mic-text');
+        const capturedTextEl = document.getElementById('captured-text');
+        const feedbackEl = document.getElementById('feedback');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const startMicInitBtn = document.getElementById('start-mic-init');
+        const questionCounterEl = document.getElementById('question-counter');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const csvFileInput = document.getElementById('csv-file-input');
+        const initialPrompt = document.getElementById('initial-prompt');
+        const audioPlayer = document.getElementById('audio-player');
+        const playlistContainer = document.getElementById('playlist-container');
+        const volumeSlider = document.getElementById('volume-slider');
+        const seekSlider = document.getElementById('seek-slider');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const totalDurationDisplay = document.getElementById('total-duration');
+
+        // --- STATE APLIKASI ---
+        let vocabList;
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let incorrectAnswers = 0;
+        let playlist = [];
+        let currentTrackIndex = 0;
+        let isChecking = false;
+        let isMicEnabled = false;
+
+        // --- SPEECH RECOGNITION SETUP ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'id-ID'; 
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                micPulse.classList.add('mic-active');
+                micPulse.classList.replace('bg-slate-600', 'bg-rose-500');
+                micPulse.classList.replace('bg-emerald-500', 'bg-rose-500');
+                micText.textContent = "Mendengarkan...";
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                capturedTextEl.textContent = `Anda mengucapkan: "${transcript}"`;
+                checkVoiceAnswer(transcript);
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Mic error:", event.error);
+                if (event.error === 'no-speech' && !isChecking) {
+                    setTimeout(() => startListening(), 300);
+                } else if (event.error === 'not-allowed') {
+                    isMicEnabled = false;
+                    alert('Harap izinkan akses mikrofon di pengaturan browser Anda.');
+                }
+            };
+
+            recognition.onend = () => {
+                micPulse.classList.remove('mic-active');
+                if (!isChecking && isMicEnabled) {
+                    startListening();
+                }
+            };
+        } else {
+            alert("Browser ini tidak mendukung fitur pengenalan suara.");
+        }
+
+        function startListening() {
+            if (recognition && isMicEnabled && !isChecking) {
+                try {
+                    recognition.start();
+                } catch (e) { }
+            }
+        }
+
+        function stopListening() {
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {}
+            }
+        }
+
+        // --- FUNGSI MUSIK ---
+        function showMusicSettings() { musicModal.classList.remove('hidden'); }
+        function hideMusicSettings() { musicModal.classList.add('hidden'); }
+        function showDeleteConfirm() { if (playlist.length > 0) confirmDeleteModal.classList.remove('hidden'); }
+        function hideDeleteConfirm() { confirmDeleteModal.classList.add('hidden'); }
+        function formatTime(s) { if(isNaN(s)) return "00:00"; const m = Math.floor(s/60); const sec = Math.floor(s%60); return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`; }
+        audioPlayer.addEventListener('loadedmetadata', () => { totalDurationDisplay.textContent = formatTime(audioPlayer.duration); seekSlider.max = audioPlayer.duration; });
+        audioPlayer.addEventListener('timeupdate', () => { currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime); seekSlider.value = audioPlayer.currentTime; });
+        seekSlider.addEventListener('input', () => audioPlayer.currentTime = seekSlider.value);
+        function handleAudioUpload(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                const nt = Array.from(files).map(f => ({ name: f.name, url: URL.createObjectURL(f) }));
+                playlist = playlist.concat(nt);
+                renderPlaylist();
+                document.getElementById('play-btn').disabled = false;
+                document.getElementById('stop-btn').disabled = false;
+            }
+        }
+        function renderPlaylist() {
+            playlistContainer.innerHTML = '';
+            if (playlist.length === 0) { playlistContainer.innerHTML = '<p class="text-white/30 italic p-1">Kosong.</p>'; return; }
+            playlist.forEach((t, i) => {
+                const act = i === currentTrackIndex && !audioPlayer.paused;
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-2 rounded-xl ${act ? 'bg-cyan-500 text-white' : 'hover:bg-white/10'}`;
+                div.innerHTML = `<button class="flex-grow text-left truncate font-medium mr-2" onclick="playTrack(${i})">${i + 1}. ${t.name}</button><button onclick="deleteTrack(${i})">&times;</button>`;
+                playlistContainer.appendChild(div);
+            });
+        }
+        function playTrack(i) { currentTrackIndex = i; playMusic(); }
+        function playMusic() { if(playlist.length === 0) return; if(audioPlayer.src !== playlist[currentTrackIndex].url) audioPlayer.src = playlist[currentTrackIndex].url; audioPlayer.play(); renderPlaylist(); }
+        function stopMusic() { audioPlayer.pause(); audioPlayer.currentTime = 0; renderPlaylist(); }
+        function deleteTrack(i) { playlist.splice(i, 1); if(i < currentTrackIndex) currentTrackIndex--; renderPlaylist(); }
+        volumeSlider.addEventListener('input', (e) => audioPlayer.volume = e.target.value);
+
+        // --- LOGIKA KUIS ---
+        function handleCsvImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const newVocab = [];
+                const rows = text.split(/\r?\n/);
+                for (const row of rows) {
+                    const tr = row.trim();
+                    if (tr) {
+                        const idx = tr.indexOf(',');
+                        if (idx > -1) {
+                            let word = tr.substring(0, idx).trim();
+                            let meaning = tr.substring(idx + 1).trim();
+                            if (word.startsWith('"')) word = word.slice(1,-1);
+                            if (meaning.startsWith('"')) meaning = meaning.slice(1,-1);
+                            if (word && meaning) newVocab.push({ word, meaning });
+                        }
+                    }
+                }
+                if (newVocab.length > 0) {
+                    allVocab = newVocab;
+                    importSuccessModal.classList.remove('hidden');
+                    startMicInitBtn.classList.remove('hidden');
+                    setTimeout(() => importSuccessModal.classList.add('hidden'), 1000);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        startMicInitBtn.addEventListener('click', () => {
+            isMicEnabled = true;
+            startGame();
+        });
+
+        function startGame() {
+            initialPrompt.classList.add('hidden');
+            voiceArea.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            incorrectAnswers = 0;
+            vocabList = [...allVocab];
+            updateScoreDisplay();
+            showQuestion();
+        }
+
+        function showQuestion() {
+            isChecking = false;
+            feedbackEl.textContent = '';
+            nextBtn.classList.add('hidden');
+            capturedTextEl.textContent = "Ucapkan terjemahannya...";
+            
+            if (currentQuestionIndex >= vocabList.length) {
+                isMicEnabled = false;
+                stopListening();
+                questionEl.textContent = 'Selesai! 🏆';
+                feedbackEl.innerHTML = `Skor Akhir: <span class="text-white">${correctAnswers} Benar</span> / ${vocabList.length}`;
+                voiceArea.classList.add('hidden');
+                restartBtn.classList.remove('hidden');
+                return;
+            }
+
+            questionCounterEl.textContent = currentQuestionIndex + 1;
+            totalQuestionsEl.textContent = vocabList.length;
+            const item = vocabList[currentQuestionIndex];
+            questionEl.textContent = `"${item.word}"`;
+
+            setTimeout(() => startListening(), 400);
+        }
+
+        function checkVoiceAnswer(transcript) {
+            isChecking = true;
+            stopListening();
+
+            const userAnswer = transcript.trim().toLowerCase();
+            const rawCorrect = vocabList[currentQuestionIndex].meaning.trim();
+            const lowerCorrect = rawCorrect.toLowerCase();
+            
+            // LOGIKA MULTI-JAWABAN: Memecah string berdasarkan '/'
+            const possibilities = lowerCorrect.split('/').map(a => a.trim());
+
+            // Dianggap benar jika ucapan sama dengan salah satu kemungkinan 
+            // ATAU sama persis dengan seluruh string (misal siswa bilang 'a slice an')
+            const isCorrect = possibilities.includes(userAnswer) || userAnswer === lowerCorrect;
+
+            if (isCorrect) {
+                feedbackEl.textContent = 'BENAR! ✨';
+                feedbackEl.className = 'mt-4 font-black text-2xl text-emerald-400 drop-shadow-lg scale-105 transition-all';
+                correctAnswers++;
+                micPulse.classList.replace('bg-rose-500', 'bg-emerald-500');
+                micText.textContent = "Bagus!";
+            } else {
+                feedbackEl.textContent = `SALAH! (${rawCorrect})`;
+                feedbackEl.className = 'mt-4 font-bold text-lg text-rose-400';
+                incorrectAnswers++;
+                micPulse.classList.replace('bg-rose-500', 'bg-slate-700');
+                micText.textContent = "Kurang Tepat";
+            }
+
+            updateScoreDisplay();
+            nextBtn.classList.remove('hidden');
+            nextBtn.focus();
+        }
+
+        function updateScoreDisplay() {
+            scoreDisplay.innerHTML = `BENAR: ${correctAnswers} | SALAH: ${incorrectAnswers}`;
+        }
+
+        document.getElementById('import-csv-btn').addEventListener('click', () => csvFileInput.click());
+        csvFileInput.addEventListener('change', handleCsvImport);
+        nextBtn.addEventListener('click', () => { currentQuestionIndex++; showQuestion(); });
+        restartBtn.addEventListener('click', () => {
+            isMicEnabled = true;
+            startGame();
+        });
+
+    </script>
+</body>
+</html>
